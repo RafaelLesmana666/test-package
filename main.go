@@ -11,13 +11,22 @@ func main() {
 
 	config.Open()
 
-	met := config.Jamet
+	Jamet := config.Jamet
 
 	router := gin.Default()
 	router.GET("/service/pkb", func(c *gin.Context) {
-		query := met.GetData("pkbs", "")
+		req := jamethelper.GetRequest(c)
+		status, data := Jamet.ReadCache("pkbs_" +jamethelper.Md5(req))
+	
+		if !status {
+			query := Jamet.GetData("pkbs", "")
 
-		jamethelper.CreateData(c, query, []string{"id"})
+			data = jamethelper.CreateData(c, query, []string{"id", "branch_code"})
+
+			Jamet.WriteCache("pkbs_"+jamethelper.Md5(req), data)
+		}
+
+		jamethelper.PrintJSON(c, data)
 	})
 
 	router.POST("/service/pkb", func(c *gin.Context) {
@@ -64,19 +73,19 @@ func main() {
 
 		connection := config.Jamet.Connection("default")
 
-		data := map[string]interface{}{
-			"name":  "Alice",
-			"age":   30,
-			"email": "alice@example.com",
-		}
+		// data := map[string]interface{}{
+		// 	"name":  "Alice",
+		// 	"age":   30,
+		// 	"email": "alice@example.com",
+		// }
 
-		if err := jamethelper.InsertData(c, connection, "barangs", data); err != nil {
-			jamethelper.EPrintJSON(c, jamethelper.Response{
-				Status:  false,
-				Message: err,
-			})
-			return
-		}
+		// if err := jamethelper.InsertData(c, connection, "barangs", data); err != nil {
+		// 	jamethelper.EPrintJSON(c, jamethelper.Response{
+		// 		Status:  false,
+		// 		Message: err,
+		// 	})
+		// 	return
+		// }
 
 		connection.Commit()
 		jamethelper.PrintJSON(c, jamethelper.Response{

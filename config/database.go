@@ -36,9 +36,19 @@ func Open() {
 		log.Fatal(err)
 	}
 
-	Jamet = jamethelper.NewJamet(map[string]*gorm.DB{
-		"": H23,
-		"H1":  H1,
-	})
+	config := jamethelper.Jamet{
+		Config: map[string]*gorm.DB{
+			"": H23,
+		},
+		Redis: jamethelper.FormatRedis{
+			Host:     "host",
+			Port:     "poart",
+			Password: "password",
+			Database: 3,
+			On:       true,
+		},
+	}
+
+	Jamet = jamethelper.NewJamet(config)
 
 }
